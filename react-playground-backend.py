@@ -5,9 +5,10 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 source_csv = "favorite_meals.csv"
+
 file_exists = True if os.path.isfile(source_csv) else False
 if not file_exists:
-    df = pd.DataFrame({"name": [], "favorite_meal": []})
+    df = pd.DataFrame({"name": ["Meng", "Louis"], "favorite_meal": ["Knekkebrød", "Dumplings"]})
     df.to_csv(source_csv, mode="w", sep=";", index=False)
     del df
 
@@ -16,7 +17,7 @@ app = Flask(__name__)
 CORS(app)
 
 # The first method
-@app.route('/api/data', methods=['POST'])
+@app.route('/api/data', methods=['PUT'])
 def write_favorite_meal_for_person(name, meal):
 
     ## This is a hacky way to update the table. Replace with Postgres
@@ -34,9 +35,12 @@ def write_favorite_meal_for_person(name, meal):
 @app.route('/api/data', methods=['GET'])
 def get_favorite_meals():
     df = pd.read_csv(source_csv, sep=";")
-    json_msg = df.to_json()
+    json_msg = df.to_dict()
 
-    return json_msg
+    var = [{"name": "Meng", "favorite_meal": "Knekkebrød"},
+           {"name": "Louis", "favorite_meal": "Dumplings"}]
+
+    return jsonify(var)
 
 
 if __name__ == '__main__':
