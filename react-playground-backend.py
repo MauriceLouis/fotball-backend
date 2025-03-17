@@ -18,17 +18,21 @@ CORS(app)
 
 # The first method
 @app.route('/api/data', methods=['PUT'])
-def write_favorite_meal_for_person(name, meal):
+def write_favorite_meal_for_person():
+    data = request.json
+    names = [item["name"] for item in data]
 
-    ## This is a hacky way to update the table. Replace with Postgres
-    df_temp = pd.DataFrame({"name": [name], "favorite_meal": [meal]})
+    print(names)
+
+    df_temp = pd.DataFrame(data)
     df = pd.read_csv(source_csv, sep=";")
-    df = df[df["name"] != name].copy()
+    df = df[~df["name"].isin(names)].copy()
     df = pd.concat([df, df_temp])
 
     df.to_csv(source_csv, mode="w", sep=";", index=False)
 
-    return jsonify({"message": f"Følgende er lagt inn: {name} sitt favorittmåltid er {meal}"})
+    return jsonify({"message": f"Lagt til!"})
+
 
 
 # The second method reads data from the source and returns the full table
@@ -37,8 +41,8 @@ def get_favorite_meals():
     df = pd.read_csv(source_csv, sep=";")
     json_msg = df.to_dict()
 
-    var = [{"name": "Meng", "favorite_meal": "Knekkebrød"},
-           {"name": "Louis", "favorite_meal": "Dumplings"}]
+    var = [{"name": "Meng", "favoriteMeal": "Knekkebrød"},
+           {"name": "Louis", "favoriteMeal": "Dumplings"}]
 
     return jsonify(var)
 
