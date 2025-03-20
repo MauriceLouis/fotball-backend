@@ -23,8 +23,6 @@ function GetTeamFixtures()   {
                 console.error('Error fetching data:', error);
             });
     }, []);
-
-
     return teamFixtures
 }
 
@@ -37,21 +35,33 @@ function GetTeamFixtures()   {
 const App = () => {
     const TeamFixtures = GetTeamFixtures()
     const [selectedTeam, setSelectedTeam] = useState("")
-    const [teamSquad, setTeamSquad] = useState("")
-    const handleChange = (event) => {
+    const [playerName, setPlayerName] = useState("")
+    const [playerTeams, setPlayerTeams] = useState({})
+    const handleChangeTeam = (event) => {
         setSelectedTeam(event.target.value);
     };
+    const handleChangePlayerName = (event) => {setPlayerName(event.target.value)}
+    const handleAddPlayerToTeam = () => {
+            if (!playerName || !selectedTeam) return [console.log("feil her"), console.log(playerName), console.log(selectedTeam)];
+            setPlayerTeams((prevPlayerTeams)  => ({...prevPlayerTeams, [playerName]: selectedTeam,}));
+            setPlayerName("");
+    }
+
     const teams = Object.keys(TeamFixtures)
     return (
     <div>
               <h1>Legg til spillere per lag</h1>
              <div>
                  <label htmlFor="teamSelect"> Velg lag! </label>
-                 <select id="teamSelect" value = {selectedTeam} onChange={handleChange}>
+                 <select id="teamSelect" value = {selectedTeam} onChange={handleChangeTeam}>
+                     <option value={""}>Velg lag</option>
                      {teams.map(i => <option value={i} key={i}> {i}</option>)}
                  </select>
-                 {console.log(selectedTeam)}
-                 <input></input>
+                 <input id="playerName" value={playerName} onChange={handleChangePlayerName}/>
+                 <button onClick={handleAddPlayerToTeam}> Legg til spiller! </button>
+
+
+
              </div>
           </div>
     )

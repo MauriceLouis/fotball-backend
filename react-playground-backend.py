@@ -33,7 +33,7 @@ def get_fixtures_for_teams():
         df.columns = [col.lower() for col in df.columns]
         if "ivrig" in file:
             kamper = list(df[(df["hjemmelag"].str.contains(ivriglag)) |(df["bortelag"].str.contains(ivriglag))]["dato"].unique())
-            key = ivriglag.replace(" ", "_")
+            key = ivriglag.replace(" ", "_").replace("Rød", "Red")
             team_dict[key] = kamper
         else:
             for team in kfum_teams:
