@@ -1,4 +1,5 @@
 import os
+import json
 
 import pandas as pd
 from flask import Flask, jsonify, request
@@ -8,7 +9,7 @@ source_csv = "favorite_meals.csv"
 
 file_exists = True if os.path.isfile(source_csv) else False
 if not file_exists:
-    df = pd.DataFrame({"name": ["Meng", "Louis"], "favorite_meal": ["Knekkebrød", "Dumplings"]})
+    df = pd.DataFrame({"name": ["Meng", "Louis"], "favoriteMeal": ["Knekkebrød", "Dumplings"]})
     df.to_csv(source_csv, mode="w", sep=";", index=False)
     del df
 
@@ -16,13 +17,41 @@ if not file_exists:
 app = Flask(__name__)
 CORS(app)
 
+
+# Fetching fixtures
+@app.route('/api/get_fixtures', methods=['GET'])
+def get_fixtures_for_teams():
+    print("get fixtures called!")
+    dir = "team_fixtures"
+    kfum_teams = ["KFUM 1", "KFUM 2", "KFUM 3"]
+    ivriglag = "KFUM Rød"
+    csv_files = [file for file in os.listdir(dir) if file.split(".")[-1] == "csv"]
+    team_dict = {}
+    for file in csv_files:
+        file = f"{dir}/{file}"
+        df = pd.read_csv(file, sep=";")
+        df.columns = [col.lower() for col in df.columns]
+        if "ivrig" in file:
+            kamper = list(df[(df["hjemmelag"].str.contains(ivriglag)) |(df["bortelag"].str.contains(ivriglag))]["dato"].unique())
+            key = ivriglag.replace(" ", "_")
+            team_dict[key] = kamper
+        else:
+            for team in kfum_teams:
+                kamper = list(df[(df["hjemmelag"].str.contains(team)) |(df["bortelag"].str.contains(team))]["dato"].unique())
+                if len(kamper) > 0:
+                    key = team.replace(" ", "_")
+                    team_dict[key] = kamper
+    print(team_dict)
+
+    return json.dumps(team_dict)
+
+
+
 # The first method
 @app.route('/api/data', methods=['PUT'])
 def write_favorite_meal_for_person():
     data = request.json
     names = [item["name"] for item in data]
-
-    print(names)
 
     df_temp = pd.DataFrame(data)
     df = pd.read_csv(source_csv, sep=";")
@@ -38,13 +67,15 @@ def write_favorite_meal_for_person():
 # The second method reads data from the source and returns the full table
 @app.route('/api/data', methods=['GET'])
 def get_favorite_meals():
+    print("blir kalt?")
+    
+    
     df = pd.read_csv(source_csv, sep=";")
-    json_msg = df.to_dict()
+    json_msg = df.to_json()
 
-    var = [{"name": "Meng", "favoriteMeal": "Knekkebrød"},
-           {"name": "Louis", "favoriteMeal": "Dumplings"}]
+    print(json_msg)
 
-    return jsonify(var)
+    return jsonify(json_msg)
 
 
 if __name__ == '__main__':

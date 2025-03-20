@@ -1,69 +1,60 @@
 import React, { useState, useEffect } from 'react';
 
 
-// Step 1: Add person`s name and favorite meal and write this to the csv-file before returning a message to the frontend
-// Step 2: Read the csv-file and show the people and their favorite meals :)
+// Fetch the csv-files from the backend and set TeamFixtures
+// Use KFUM-teams as options in the dropdown
+// Create a <form> and render the dropdown as well as input-boxes and a button
+// This function should return an array where you have [{key = team, values = [names]   }]
+// Then you display all the teams
+// Before you hit the button, send the teams to the backend, which then set up the squads for the matches
+// ...which is returned and displayed
+// ...and then you can save it to a csv-file/database
 
-
-
-function AddPersonsFavoriteMeal() {
-    const [name, setName] = useState("")
-    const [favoriteMeal, setFavoriteMeal] = useState("")
-    const [personList, setPersonList] = useState([])
-    const div = (<div>
-        <form>
-        <div className="mb-4 align-middle" style={{display: 'flex', flexDirection: 'row'}}>
-        <label>
-            Personens navn: <input name="navn" onChange = {e => setName(e.target.value)}/>
-        </label>
-            <label>
-                Favorittmåltid: <input name="favorite_meal" onChange = {e => setFavoriteMeal(e.target.value)}/>
-            </label>
-
-        </div>
-    </form>
-        <button onClick = {e => setPersonList([... personList, {name: name, favoriteMeal: favoriteMeal }])} >  Legg til!</button>
-        <button onClick = {e => setPersonList([])}> Fjern alt! </button>
-    </div>)
-        return {div: div, list: personList}
-
-}
-
-
-const App = () => {
-    const [data, setData] = useState('')
-    const functionReturn = AddPersonsFavoriteMeal()
-
-    function exportData (){
-        fetch('http://127.0.0.1:5000/api/data', {method: "PUT", body: JSON.stringify(functionReturn.list), headers: {'Content-Type': 'application/json'}})
-
-    }
-/*
+function GetTeamFixtures()   {
+    const [teamFixtures, setTeamFixtures] = useState("")
     useEffect(() => {
-        fetch('http://127.0.0.1:5000/api/data')
-        .then(response => response.json())
+        fetch("http://127.0.0.1:5000/api/get_fixtures")
+            .then(response => response.json())
             .then(data => {
                 console.log(data)
-                setData(data);
+                setTeamFixtures(data);
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
             });
     }, []);
-*/
-    return (
-        <div>
-            <h1>Our summary of people and food!</h1>
-            <h2>Report the person`s favorite meal</h2>
-            {functionReturn.div}
-            <h2>Summary (add a dashed line above this title)</h2>
-            <ol>
-                {functionReturn.list && functionReturn.list.map(i=><li>{i.name + ": " + i.favoriteMeal} </li>)}
-            </ol>
-            <button onClick = {exportData} >  Lagre preferanser! </button>
 
-        </div>
-    );
-};
+
+    return teamFixtures
+}
+
+
+// const [teamPlayers, setTeamPlayers]  = useState([])
+
+
+// function AddPlayersToTeam(){}
+
+const App = () => {
+    const TeamFixtures = GetTeamFixtures()
+    const [selectedTeam, setSelectedTeam] = useState("")
+    const [teamSquad, setTeamSquad] = useState("")
+    const handleChange = (event) => {
+        setSelectedTeam(event.target.value);
+    };
+    const teams = Object.keys(TeamFixtures)
+    return (
+    <div>
+              <h1>Legg til spillere per lag</h1>
+             <div>
+                 <label htmlFor="teamSelect"> Velg lag! </label>
+                 <select id="teamSelect" value = {selectedTeam} onChange={handleChange}>
+                     {teams.map(i => <option value={i} key={i}> {i}</option>)}
+                 </select>
+                 {console.log(selectedTeam)}
+                 <input></input>
+             </div>
+          </div>
+    )
+}
 
 export default App;
