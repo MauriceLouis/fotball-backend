@@ -16,7 +16,6 @@ function GetTeamFixtures()   {
         fetch("http://127.0.0.1:5000/api/get_fixtures")
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 setTeamFixtures(data);
             })
             .catch(error => {
@@ -27,10 +26,26 @@ function GetTeamFixtures()   {
 }
 
 
-// const [teamPlayers, setTeamPlayers]  = useState([])
-
-
-// function AddPlayersToTeam(){}
+function PlayerTeamTable({ players }) {
+    return (
+        <table>
+            <thead>
+            <tr>
+                <th>Spiller</th>
+                <th>Lag</th>
+            </tr>
+            </thead>
+            <tbody>
+            {Object.entries(players).map(([player, team]) => (
+                <tr key={player}>
+                    <td>{player}</td>
+                    <td>{team}</td>
+                </tr>
+            ))}
+            </tbody>
+        </table>
+    );
+}
 
 const App = () => {
     const TeamFixtures = GetTeamFixtures()
@@ -42,7 +57,7 @@ const App = () => {
     };
     const handleChangePlayerName = (event) => {setPlayerName(event.target.value)}
     const handleAddPlayerToTeam = () => {
-            if (!playerName || !selectedTeam) return [console.log("feil her"), console.log(playerName), console.log(selectedTeam)];
+            if (!playerName || !selectedTeam) return;
             setPlayerTeams((prevPlayerTeams)  => ({...prevPlayerTeams, [playerName]: selectedTeam,}));
             setPlayerName("");
     }
@@ -59,8 +74,7 @@ const App = () => {
                  </select>
                  <input id="playerName" value={playerName} onChange={handleChangePlayerName}/>
                  <button onClick={handleAddPlayerToTeam}> Legg til spiller! </button>
-
-
+                 <PlayerTeamTable players={playerTeams} />
 
              </div>
           </div>
