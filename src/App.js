@@ -1,6 +1,62 @@
 import React, { useState, useEffect } from 'react';
 
 
+function ObjectTable({ data, includedKeys }) {
+    // Function to safely handle nested properties
+    const getNestedValue = (obj, path) => {
+        return path.split('.').reduce((acc, part) => acc && acc[part] ? acc[part] : null, obj);
+    };
+
+    // Determine headers.  If includedKeys are provided, use those, otherwise,
+    // get all unique keys from the *first* data item.
+    const headers = includedKeys || (data.length > 0 ? Object.keys(data[0]) : []);
+
+    // Function to generate table rows
+    const generateRows = (rowDataArray) => {
+        return rowDataArray.map((rowData, index) => (
+            <tr key={index}>
+                {headers.map((header) => {
+                    const value = getNestedValue(rowData, header);
+                    let displayValue;
+
+                    if (value === null) {
+                        displayValue = "N/A";
+                    } else if (typeof value === 'object') {
+                        if (Array.isArray(value)) {
+                            displayValue = value.join(', ');
+                        } else {
+                            displayValue = JSON.stringify(value);
+                        }
+                    } else {
+                        displayValue = String(value);
+                    }
+                    return (
+                        <td key={header}>{displayValue}</td>
+                    );
+                })}
+            </tr>
+        ));
+    };
+
+    return (
+        <div className="w-full">
+            <table>
+                <thead>
+                <tr>
+                    {headers.map((header) => (
+                        <th key={header}>{header}</th>
+                    ))}
+                </tr>
+                </thead>
+                <tbody>
+                {generateRows(data)}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+
 // Fetch the csv-files from the backend and set TeamFixtures
 // Use KFUM-teams as options in the dropdown
 // Create a <form> and render the dropdown as well as input-boxes and a button
@@ -52,7 +108,7 @@ const App = () => {
     const [selectedTeam, setSelectedTeam] = useState("")
     const [playerName, setPlayerName] = useState("")
     const [playerTeams, setPlayerTeams] = useState({})
-    const [squads, setSquads] =  useState({})
+    const [squads, setSquads] =  useState([{"tom": "tabell"}])
 
     const handleChangeTeam = (event) => {
         setSelectedTeam(event.target.value);
@@ -112,6 +168,8 @@ const App = () => {
              </div>
         <h1 style ={{marginTop: "20px"}}> Kamptropper </h1>
         <button onClick={handleSend}> Lag kamptropper! </button>
+        <div style ={{marginTop: "20px"}}></div>
+        <ObjectTable data={squads} />
           </div>
     )
 }

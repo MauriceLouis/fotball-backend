@@ -52,12 +52,12 @@ def generate_squads():
         fixtures[team] = [pd.to_datetime(date, format="%d.%m.%Y") for date in fixtures[team]]
 
     # Trenger en tabell med oversikt over alle ivrigkampene
-    df_ivrig = pd.read_csv("team_fixtures/input_csv_ivriglag.csv", sep=";")
+    df_ivrig = pd.read_csv("team_fixtures/input_csv_ivriglag.csv", sep=";", dtype={"Tid": "str"})
     df_ivrig = df_ivrig.query("Hjemmelag == 'KFUM Rød' | Bortelag == 'KFUM Rød'").copy()
+    df_ivrig = df_ivrig.query("Bortelag != 'KFUM 5'")
     # Filtrere vekk kamper
 
     df_ivrig["Dato"] = pd.to_datetime(df_ivrig["Dato"], format="%d.%m.%Y")
-    df_ivrig.rename({"Dato": "Dato"}, axis=1, inplace=True)
     # Som må filtreres så vi gir litt beng i alt som har
     df_ivrig = df_ivrig[(df_ivrig["Dato"] > today) & (df_ivrig["Dato"] < max_date)]
 
@@ -71,7 +71,8 @@ def generate_squads():
     # Må iterere over alle kampene i ivrig-verden og legge til spillere
     squad_dict = {}
     for Dato in df_ivrig["Dato"]:
-        df_teams_inner = df_teams.sort_values(by="antall_kamper", ascending=True).copy()
+        df_teams_inner = df_teams.sample(frac=1)
+        df_teams_inner = df_teams_inner.sort_values(by="antall_kamper", ascending=True).copy()
         df_teams_inner["kollisjon"] = df_teams_inner["dato_base"].apply(lambda x: False if Dato not in x else True)
 
         df_teams_inner = df_teams_inner[df_teams_inner["kollisjon"] == False]
@@ -79,12 +80,14 @@ def generate_squads():
 
         for spiller in squad:
             df_teams.loc[df_teams["spiller"] == spiller, "antall_kamper"] += 1
-
+        squad.sort()
         squad_dict[Dato] = squad
     df_ivrig["Tropp"] = df_ivrig["Dato"].map(squad_dict)
     df_ivrig["Antall_spillere"] = df_ivrig["Tropp"].str.len()
 
     cols_to_keep = ["Dato", "Tid", "Hjemmelag", "Bortelag", "Bane", "Tropp", "Antall_spillere"]
+    df_ivrig["Dato"] = df_ivrig["Dato"].apply(lambda x: x.strftime("%d.%m.%Y"))
+
     json_data = df_ivrig[cols_to_keep].to_dict("records")
 
     # Skrive til Postgres? Kommer vel som en feature-request fra de kravstore brukerne våre!
