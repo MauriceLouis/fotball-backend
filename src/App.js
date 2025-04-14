@@ -52,6 +52,8 @@ const App = () => {
     const [selectedTeam, setSelectedTeam] = useState("")
     const [playerName, setPlayerName] = useState("")
     const [playerTeams, setPlayerTeams] = useState({})
+    const [squads, setSquads] =  useState({})
+
     const handleChangeTeam = (event) => {
         setSelectedTeam(event.target.value);
     };
@@ -60,6 +62,7 @@ const App = () => {
             if (!playerName || !selectedTeam) return;
             setPlayerTeams((prevPlayerTeams)  => ({...prevPlayerTeams, [playerName]: selectedTeam,}));
             setPlayerName("");
+            console.log(playerTeams)
     }
 
     const teams = Object.keys(TeamFixtures)
@@ -81,7 +84,8 @@ const App = () => {
             }
 
             const result = await response.json();
-            console.log('Response from backend:', result);
+            setSquads(result)
+            console.log("Dette er squads ass: ", squads)
 
 
         } catch (error) {

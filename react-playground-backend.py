@@ -48,6 +48,8 @@ def generate_squads():
     data = request.json
     print("generate_squad called!")
     teams, fixtures = data[0], data[1]
+    for team in fixtures:
+        fixtures[team] = [pd.to_datetime(date, format="%d.%m.%Y") for date in fixtures[team]]
 
     # Trenger en tabell med oversikt over alle ivrigkampene
     df_ivrig = pd.read_csv("team_fixtures/input_csv_ivriglag.csv", sep=";")
@@ -62,6 +64,7 @@ def generate_squads():
 
     # Trenger en tabell med oversikt over alle spillerne + datoer de spiller + antall kamper
     df_teams = pd.DataFrame({"spiller": teams.keys(), "lag": teams.values()})
+
     df_teams["dato_base"] = df_teams["lag"].map(fixtures)
     df_teams["antall_kamper"] = 0
 
@@ -69,9 +72,9 @@ def generate_squads():
     squad_dict = {}
     for Dato in df_ivrig["Dato"]:
         df_teams_inner = df_teams.sort_values(by="antall_kamper", ascending=True).copy()
-        df_teams_inner["kollisjon"] = df_teams_inner["dato_base"].apply(lambda x: True if Dato in x else False)
-        df_teams_inner = df_teams_inner[df_teams_inner["kollisjon"] == False]
+        df_teams_inner["kollisjon"] = df_teams_inner["dato_base"].apply(lambda x: False if Dato not in x else True)
 
+        df_teams_inner = df_teams_inner[df_teams_inner["kollisjon"] == False]
         squad = list(df_teams_inner["spiller"][:max_squad_size].values)
 
         for spiller in squad:
@@ -82,15 +85,11 @@ def generate_squads():
     df_ivrig["Antall_spillere"] = df_ivrig["Tropp"].str.len()
 
     cols_to_keep = ["Dato", "Tid", "Hjemmelag", "Bortelag", "Bane", "Tropp", "Antall_spillere"]
-    json_data = df_ivrig[cols_to_keep].to_dict()
+    json_data = df_ivrig[cols_to_keep].to_dict("records")
 
     # Skrive til Postgres? Kommer vel som en feature-request fra de kravstore brukerne våre!
 
     return jsonify(json_data)
-
-
-
-
 
 
 if __name__ == '__main__':
