@@ -48,34 +48,18 @@ def get_fixtures_for_teams():
 
 
 # The first method
-@app.route('/api/data', methods=['PUT'])
-def write_favorite_meal_for_person():
+@app.route('/api/generate_squad', methods=['PUT'])
+def generate_squads():
     data = request.json
-    names = [item["name"] for item in data]
 
-    df_temp = pd.DataFrame(data)
-    df = pd.read_csv(source_csv, sep=";")
-    df = df[~df["name"].isin(names)].copy()
-    df = pd.concat([df, df_temp])
-
-    df.to_csv(source_csv, mode="w", sep=";", index=False)
+    df = pd.DataFrame({"spiller": data.keys(), "lag": data.values()})
+    print(df)
 
     return jsonify({"message": f"Lagt til!"})
 
 
 
-# The second method reads data from the source and returns the full table
-@app.route('/api/data', methods=['GET'])
-def get_favorite_meals():
-    print("blir kalt?")
-    
-    
-    df = pd.read_csv(source_csv, sep=";")
-    json_msg = df.to_json()
 
-    print(json_msg)
-
-    return jsonify(json_msg)
 
 
 if __name__ == '__main__':

@@ -63,6 +63,35 @@ const App = () => {
     }
 
     const teams = Object.keys(TeamFixtures)
+
+    const [response, setResponse] = useState("")
+
+    const handleSend = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/generate_squad', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(playerTeams),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Response from backend:', result);
+
+
+        } catch (error) {
+            console.error('Error sending data:', error);
+        }
+
+
+    }
+
+
     return (
     <div>
               <h1>Legg til spillere per lag</h1>
@@ -77,6 +106,8 @@ const App = () => {
                  <PlayerTeamTable players={playerTeams} />
 
              </div>
+        <h1 style ={{marginTop: "20px"}}> Kamptropper </h1>
+        <button onClick={handleSend}> Lag kamptropper! </button>
           </div>
     )
 }
