@@ -73,7 +73,7 @@ const App = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(playerTeams),
+                body: JSON.stringify([playerTeams, TeamFixtures]),
             });
 
             if (!response.ok) {

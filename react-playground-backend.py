@@ -46,7 +46,9 @@ def get_fixtures_for_teams():
 def generate_squads():
     data = request.json
     print("generate_squad called!")
-    df_teams = pd.DataFrame({"spiller": data.keys(), "lag": data.values()})
+
+    print(data)
+    # df_teams = pd.DataFrame({"spiller": data.keys(), "lag": data.values()})
 
     # Trenger å hente opp ivriglag-kampene
     # Trenger å
