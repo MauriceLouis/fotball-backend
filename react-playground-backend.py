@@ -1,24 +1,19 @@
 import os
 import json
+from datetime import date, datetime
 
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-source_csv = "favorite_meals.csv"
-
-file_exists = True if os.path.isfile(source_csv) else False
-if not file_exists:
-    df = pd.DataFrame({"name": ["Meng", "Louis"], "favoriteMeal": ["Knekkebrød", "Dumplings"]})
-    df.to_csv(source_csv, mode="w", sep=";", index=False)
-    del df
-
+today = date.today()
+max_squad_size = 9
 
 app = Flask(__name__)
 CORS(app)
 
 
-# Fetching fixtures
+# Fetching fixtures:
 @app.route('/api/get_fixtures', methods=['GET'])
 def get_fixtures_for_teams():
     print("get fixtures called!")
@@ -41,7 +36,6 @@ def get_fixtures_for_teams():
                 if len(kamper) > 0:
                     key = team.replace(" ", "_")
                     team_dict[key] = kamper
-    print(team_dict)
 
     return json.dumps(team_dict)
 
@@ -51,9 +45,11 @@ def get_fixtures_for_teams():
 @app.route('/api/generate_squad', methods=['PUT'])
 def generate_squads():
     data = request.json
+    print("generate_squad called!")
+    df_teams = pd.DataFrame({"spiller": data.keys(), "lag": data.values()})
 
-    df = pd.DataFrame({"spiller": data.keys(), "lag": data.values()})
-    print(df)
+    # Trenger å hente opp ivriglag-kampene
+    # Trenger å
 
     return jsonify({"message": f"Lagt til!"})
 
