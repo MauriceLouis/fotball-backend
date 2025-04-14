@@ -1,13 +1,14 @@
 import os
 import json
-from datetime import date, datetime
+from datetime import datetime
 
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-today = date.today()
+today = datetime.now()
 max_squad_size = 9
+max_date = "30.06.2025"
 
 app = Flask(__name__)
 CORS(app)
@@ -46,14 +47,46 @@ def get_fixtures_for_teams():
 def generate_squads():
     data = request.json
     print("generate_squad called!")
+    teams, fixtures = data[0], data[1]
 
-    print(data)
-    # df_teams = pd.DataFrame({"spiller": data.keys(), "lag": data.values()})
+    # Trenger en tabell med oversikt over alle ivrigkampene
+    df_ivrig = pd.read_csv("team_fixtures/input_csv_ivriglag.csv", sep=";")
+    df_ivrig = df_ivrig.query("Hjemmelag == 'KFUM Rød' | Bortelag == 'KFUM Rød'").copy()
+    # Filtrere vekk kamper
 
-    # Trenger å hente opp ivriglag-kampene
-    # Trenger å
+    df_ivrig["Dato"] = pd.to_datetime(df_ivrig["Dato"], format="%d.%m.%Y")
+    df_ivrig.rename({"Dato": "Dato"}, axis=1, inplace=True)
+    # Som må filtreres så vi gir litt beng i alt som har
+    df_ivrig = df_ivrig[(df_ivrig["Dato"] > today) & (df_ivrig["Dato"] < max_date)]
 
-    return jsonify({"message": f"Lagt til!"})
+
+    # Trenger en tabell med oversikt over alle spillerne + datoer de spiller + antall kamper
+    df_teams = pd.DataFrame({"spiller": teams.keys(), "lag": teams.values()})
+    df_teams["dato_base"] = df_teams["lag"].map(fixtures)
+    df_teams["antall_kamper"] = 0
+
+    # Må iterere over alle kampene i ivrig-verden og legge til spillere
+    squad_dict = {}
+    for Dato in df_ivrig["Dato"]:
+        df_teams_inner = df_teams.sort_values(by="antall_kamper", ascending=True).copy()
+        df_teams_inner["kollisjon"] = df_teams_inner["dato_base"].apply(lambda x: True if Dato in x else False)
+        df_teams_inner = df_teams_inner[df_teams_inner["kollisjon"] == False]
+
+        squad = list(df_teams_inner["spiller"][:max_squad_size].values)
+
+        for spiller in squad:
+            df_teams.loc[df_teams["spiller"] == spiller, "antall_kamper"] += 1
+
+        squad_dict[Dato] = squad
+    df_ivrig["Tropp"] = df_ivrig["Dato"].map(squad_dict)
+    df_ivrig["Antall_spillere"] = df_ivrig["Tropp"].str.len()
+
+    cols_to_keep = ["Dato", "Tid", "Hjemmelag", "Bortelag", "Bane", "Tropp", "Antall_spillere"]
+    json_data = df_ivrig[cols_to_keep].to_dict()
+
+    # Skrive til Postgres? Kommer vel som en feature-request fra de kravstore brukerne våre!
+
+    return jsonify(json_data)
 
 
 
