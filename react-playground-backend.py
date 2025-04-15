@@ -54,12 +54,12 @@ def generate_squads():
     # Trenger en tabell med oversikt over alle ivrigkampene
     df_ivrig = pd.read_csv("team_fixtures/input_csv_ivriglag.csv", sep=";", dtype={"Tid": "str"})
     df_ivrig = df_ivrig.query("Hjemmelag == 'KFUM Rød' | Bortelag == 'KFUM Rød'").copy()
-    df_ivrig = df_ivrig.query("Bortelag != 'KFUM 5'")
+    df_ivrig = df_ivrig.query("Bortelag != 'KFUM 5'").copy()
     # Filtrere vekk kamper
 
     df_ivrig["Dato"] = pd.to_datetime(df_ivrig["Dato"], format="%d.%m.%Y")
     # Som må filtreres så vi gir litt beng i alt som har
-    df_ivrig = df_ivrig[(df_ivrig["Dato"] > today) & (df_ivrig["Dato"] < max_date)]
+    df_ivrig = df_ivrig[(df_ivrig["Dato"] > today) & (df_ivrig["Dato"] < max_date)].copy()
 
 
     # Trenger en tabell med oversikt over alle spillerne + datoer de spiller + antall kamper
