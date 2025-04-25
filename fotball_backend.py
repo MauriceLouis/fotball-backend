@@ -11,6 +11,7 @@ max_squad_size = 9
 max_date = "30.06.2025"
 
 app = Flask(__name__)
+
 CORS(app)
 
 
@@ -95,5 +96,4 @@ def generate_squads():
     return jsonify(json_data)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app.run(debug=True, port=8080)

@@ -131,7 +131,7 @@ function ObjectTable({ data, includedKeys }) {
 function GetTeamFixtures() {
     const [teamFixtures, setTeamFixtures] = useState("");
     useEffect(() => {
-        fetch("http://127.0.0.1:5000/api/get_fixtures")
+        fetch("http://127.0.0.1:8080/api/get_fixtures")
             .then(response => response.json())
             .then(data => {
                 setTeamFixtures(data);
@@ -192,7 +192,7 @@ const App = () => {
 
     const handleSend = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/generate_squad', {
+            const response = await fetch('http://127.0.0.1:8080/api/generate_squad', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
