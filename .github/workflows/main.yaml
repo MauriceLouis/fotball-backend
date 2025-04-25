@@ -10,7 +10,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      actions: read
     steps:
       - uses: actions/checkout@v4
       - name: Build and push image and SBOM to OCI registry
@@ -18,10 +17,13 @@ jobs:
         id: docker-build-push
         with:
           team: banan2 # Replace
+          project_id: nais-management-ddba
+          identity_provider: projects/636929582051/locations/global/workloadIdentityPools/test-nais-identity-pool/providers/github-oidc-provider
       - name: Deploy to Nais
         uses: nais/deploy/actions/deploy@v2
         env:
-          CLUSTER: sandbox # Replace
+          CLUSTER: sandbox # Replace push trigger
           RESOURCE: .nais/app.yaml # This points to the file we created in the previous step
-          VAR: image=${{ steps.docker-build-push.outputs.image }} #
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
           TELEMETRY: ${{ steps.docker-build-push.outputs.telemetry }}
+          DEPLOY_SERVER: deploy.test-nais.cloud.nais.io:443
