@@ -1,0 +1,18 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: fotball-backend
+  namespace: banan2
+spec:
+  ingresses:
+    - https://fotball-backend.sandbox.test-nais.cloud.nais.io
+  image: {{image}} #
+  port: 8080
+  ttl: 3h
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
