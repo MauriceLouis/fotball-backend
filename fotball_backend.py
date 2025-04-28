@@ -14,11 +14,21 @@ app = Flask(__name__)
 
 CORS(app)
 
-
-# Fetching fixtures:
 @app.route('/', methods=["GET"])
 def default_response():
-   return "Hei"
+    return "Hei"
+
+@app.route('/liveness', methods=["GET"])
+def default_response():
+    return "Hei liveness"
+
+
+@app.route('/readiness', methods=["GET"])
+def default_response():
+    return "Hei readiness"
+
+
+# Fetching fixtures:
 
 
 @app.route('/api/get_fixtures', methods=['GET'])
