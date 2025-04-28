@@ -8,7 +8,6 @@ spec:
     - https://fotball-backend.sandbox.test-nais.cloud.nais.io
   image: {{image}} #
   port: 8080
-  ttl: 3h
   replicas:
     max: 1
     min: 1
