@@ -19,12 +19,12 @@ def default_response():
     return "Hei"
 
 @app.route('/liveness', methods=["GET"])
-def default_response():
+def default_liveness():
     return "Hei liveness"
 
 
 @app.route('/readiness', methods=["GET"])
-def default_response():
+def default_readiness():
     return "Hei readiness"
 
 
