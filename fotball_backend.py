@@ -16,6 +16,11 @@ CORS(app)
 
 
 # Fetching fixtures:
+@app.route('/', methods=["GET"])
+def default_response():
+   return "Hei"
+
+
 @app.route('/api/get_fixtures', methods=['GET'])
 def get_fixtures_for_teams():
     print("get fixtures called!")

@@ -6,7 +6,7 @@ metadata:
 spec:
   ingresses:
     - https://fotball-backend.sandbox.test-nais.cloud.nais.io
-  image: {{image}} #
+  image: {{image}}
   port: 8080
   replicas:
     max: 1
