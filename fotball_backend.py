@@ -29,8 +29,6 @@ def default_readiness():
 
 
 # Fetching fixtures:
-
-
 @app.route('/api/get_fixtures', methods=['GET'])
 def get_fixtures_for_teams():
     print("get fixtures called!")
@@ -111,4 +109,4 @@ def generate_squads():
     return jsonify(json_data)
 
 
-app.run(debug=True, port=8080)
+app.run(host="0.0.0.0")
