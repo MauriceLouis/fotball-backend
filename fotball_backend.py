@@ -8,7 +8,7 @@ from flask_cors import CORS
 
 today = datetime.now()
 max_squad_size = 9
-max_date = "30.06.2025"
+max_date = "31.12.2025"
 
 app = Flask(__name__)
 

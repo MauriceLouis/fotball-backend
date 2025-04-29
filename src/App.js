@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+const fotball_backend = process.env.DEVELOPMENT_ENV === 'development' ? "https://fotball-backend.sandbox.test-nais.cloud.nais.io/api" : "http://localhost:8080/api"
+
 const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse',
@@ -131,7 +133,7 @@ function ObjectTable({ data, includedKeys }) {
 function GetTeamFixtures() {
     const [teamFixtures, setTeamFixtures] = useState("");
     useEffect(() => {
-        fetch("http://127.0.0.1:8080/api/get_fixtures")
+        fetch(`${fotball_backend}/get_fixtures`)
             .then(response => response.json())
             .then(data => {
                 setTeamFixtures(data);
@@ -192,7 +194,7 @@ const App = () => {
 
     const handleSend = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8080/api/generate_squad', {
+            const response = await fetch(`${fotball_backend}/generate_squad`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -206,7 +208,7 @@ const App = () => {
 
             const result = await response.json();
             setSquads(result);
-            console.log("Dette er squads ass: ", squads);
+            console.log("Dette er squads ass: ", fotball_backend);
         } catch (error) {
             console.error('Error sending data:', error);
         }
