@@ -54,9 +54,12 @@ def get_fixtures_for_teams():
 
     return json.dumps(team_dict)
 
+@app.route('/api/save_teams', methods=["PUT"])
+def save_teams():
+    data = request.json
+    print(data)
 
 
-# The first method
 @app.route('/api/generate_squad', methods=['PUT'])
 def generate_squads():
     data = request.json

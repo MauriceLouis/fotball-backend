@@ -187,10 +187,32 @@ const App = () => {
             [playerName]: selectedTeam,
         }));
         setPlayerName("");
-        console.log(playerTeams);
     }
 
     const teams = Object.keys(TeamFixtures);
+
+    const handleSaveTeams = async() => {
+        try {
+            const response = await fetch(`${fotball_backend}/save_teams`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(playerTeams),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Laginndelingen lagret! ", result);
+        } catch (error) {
+            console.error('Laginndelingen ikke lagret: ', error);
+        }
+    }
+
+
 
     const handleSend = async () => {
         try {
@@ -247,6 +269,13 @@ const App = () => {
                 </div>
                 <PlayerTeamTable players={playerTeams} />
             </div>
+
+            <button
+                onClick={handleSaveTeams}
+                style={buttonStyle}
+                >
+                Lagre laginndelinger!
+            </button>
 
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginTop: '32px', marginBottom: '24px', color: '#333' }}>Kamptropper</h1>
             <button

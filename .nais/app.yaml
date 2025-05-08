@@ -15,3 +15,6 @@ spec:
     requests:
       cpu: 50m
       memory: 32Mi
+  gcp:
+    buckets:
+      - name: fotballappen
