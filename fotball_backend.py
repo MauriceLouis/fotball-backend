@@ -6,9 +6,15 @@ import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+teams_adr = "gs://fotballappen/lag.csv"
+if "USER" in os.environ.keys():
+    if os.environ["USER"].lower() == "louis":
+        teams_adr = "laginndeling.csv"
+
 today = datetime.now()
 max_squad_size = 9
 max_date = "31.12.2025"
+
 
 app = Flask(__name__)
 
@@ -31,7 +37,6 @@ def default_readiness():
 # Fetching fixtures:
 @app.route('/api/get_fixtures', methods=['GET'])
 def get_fixtures_for_teams():
-    print("get fixtures called!")
     dir = "team_fixtures"
     kfum_teams = ["KFUM 1", "KFUM 2", "KFUM 3"]
     ivriglag = "KFUM Rød"
@@ -54,10 +59,28 @@ def get_fixtures_for_teams():
 
     return json.dumps(team_dict)
 
+
+@app.route('/api/get_teams', methods=["GET"])
+def get_teams():
+    print("get_teams called!")
+    df = pd.read_csv(teams_adr, sep=";")
+    team_dict = {}
+    for i, row in df.iterrows():
+        team_dict[row["name"]] = row["team"]
+
+    print(team_dict)
+    return json.dumps(team_dict)
+
+
 @app.route('/api/save_teams', methods=["PUT"])
 def save_teams():
     data = request.json
-    print(data)
+    df = pd.DataFrame({"name": data.keys(), "team": data.values()})
+
+    df.to_csv(teams_adr, sep=";", mode="w", index=False)
+
+
+    return {"message: Laginndeling lagret!"}
 
 
 @app.route('/api/generate_squad', methods=['PUT'])

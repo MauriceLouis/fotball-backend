@@ -146,6 +146,7 @@ function GetTeamFixtures() {
 }
 
 
+
 function PlayerTeamTable({ players }) {
     return (
         <table style={{ ...tableStyle, marginTop: '20px' }}>
@@ -171,8 +172,26 @@ const App = () => {
     const TeamFixtures = GetTeamFixtures();
     const [selectedTeam, setSelectedTeam] = useState("");
     const [playerName, setPlayerName] = useState("");
-    const [playerTeams, setPlayerTeams] = useState({});
+    const [playerTeams, setPlayerTeams] = useState({}); // Initialize as an empty object
     const [squads, setSquads] = useState([{"tom": "tabell"}]);
+
+    useEffect(() => {
+        const fetchTeams = async () => {
+            try {
+                const response = await fetch(`${fotball_backend}/get_teams`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                setPlayerTeams(data);
+                console.log("Fetched teams data:", data);
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+            }
+        };
+
+        fetchTeams();
+    }, []);
 
     const handleChangeTeam = (event) => {
         setSelectedTeam(event.target.value);
